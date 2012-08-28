@@ -36,6 +36,8 @@ require 'active_record/connection_adapters/oracle_enhanced_column'
 
 require 'digest/sha1'
 
+require 'active_record/session_store'
+
 module ActiveRecord
   module ConnectionHandling #:nodoc:
     # Establishes a connection to the database that's used by all Active Record objects.

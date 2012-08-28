@@ -43,6 +43,7 @@ group :development do
     end
 
     gem "activerecord-deprecated_finders", :git => "git://github.com/rails/activerecord-deprecated_finders"
+    gem 'activerecord-session_store', github: 'rails/activerecord-session_store'
   end
 
   gem 'ruby-plsql', '>=0.5.0'
