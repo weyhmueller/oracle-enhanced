@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
 group :development do
-  gem 'jeweler', '~> 1.5.1'
+  gem 'jeweler'
   gem 'rspec', '~> 2.4'
   gem 'rdoc'
 
@@ -33,13 +33,13 @@ group :development do
     if ENV['AREL_GEM_PATH']
       gem 'arel', :path => ENV['AREL_GEM_PATH']
     else
-      gem 'arel', :git => "git://github.com/rails/arel"
+      gem 'arel', :git => "git://github.com/rails/arel", :branch => '3-0-stable'
     end
 
     if ENV['JOURNEY_GEM_PATH']
       gem 'journey', :path => ENV['JOURNEY_GEM_PATH']
     else
-      gem "journey", :git => "git://github.com/rails/journey"
+      gem "journey", :git => "git://github.com/rails/journey", :branch => '1-0-stable'
     end
   end
 
