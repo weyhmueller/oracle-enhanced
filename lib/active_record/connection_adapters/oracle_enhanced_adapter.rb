@@ -1550,4 +1550,10 @@ module ActiveRecord
 end
 
 # Patches and enhancements for column dumper
-require 'active_record/connection_adapters/oracle_enhanced_column_dumper'
+if ActiveRecord::VERSION::MAJOR == 4
+  require 'active_record/connection_adapters/oracle_enhanced_column_dumper'
+end
+
+if ActiveRecord::VERSION::MAJOR == 3 and ActiveRecord::VERSION::MINOR == 2
+  require 'active_record/connection_adapters/oracle_enhanced_compatible'
+end

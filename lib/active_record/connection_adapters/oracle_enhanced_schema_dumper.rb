@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 module ActiveRecord #:nodoc:
   module ConnectionAdapters #:nodoc:
     module OracleEnhancedSchemaDumper #:nodoc:
@@ -173,14 +174,34 @@ module ActiveRecord #:nodoc:
           column_specs = columns.map do |column|
             raise StandardError, "Unknown type '#{column.sql_type}' for column '#{column.name}'" if @types[column.type].nil?
             next if column.name == pk
-            @connection.column_spec(column, @types)
+            spec = {}
+            spec[:name]      = column.name.inspect
+            spec[:type]      = column.virtual? ? 'virtual' : column.type.to_s
+            spec[:type]      = column.virtual? ? 'virtual' : column.type.to_s
+            spec[:virtual_type] = column.type.inspect if column.virtual? && column.sql_type != 'NUMBER'
+            spec[:limit]     = column.limit.inspect if column.limit != @types[column.type][:limit] && column.type != :decimal
+            spec[:precision] = column.precision.inspect if !column.precision.nil?
+            spec[:scale]     = column.scale.inspect if !column.scale.nil?
+            spec[:null]      = 'false' if !column.null
+            spec[:as]        = column.virtual_column_data_default if column.virtual?
+            spec[:default]   = default_string(column.default) if column.has_default? && !column.virtual?
+            (spec.keys - [:name, :type]).each do |k|
+              key_s = (k == :virtual_type ? ":type => " : "#{k.inspect} => ")
+              spec[k] = key_s + spec[k]
+            end
+            spec
+            @connection.column_spec(column, @types) if ActiveRecord::VERSION::MAJOR == 4
           end.compact
 
           # find all migration keys used in this table
           # 
           # TODO `& column_specs.map(&:keys).flatten` should be executed 
           # in migration_keys_with_oracle_enhanced
-          keys = @connection.migration_keys & column_specs.map(&:keys).flatten
+          if ActiveRecord::VERSION::MAJOR == 4
+            keys = @connection.migration_keys & column_specs.map(&:keys).flatten
+          else
+            keys = [:name, :limit, :precision, :scale, :default, :null, :as, :virtual_type] & column_specs.map(&:keys).flatten
+          end  
 
           # figure out the lengths for each column based on above keys
           lengths = keys.map{ |key| column_specs.map{ |spec| spec[key] ? spec[key].length + 2 : 0 }.max }

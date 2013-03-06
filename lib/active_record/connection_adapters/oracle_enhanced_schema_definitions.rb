@@ -113,7 +113,7 @@ module ActiveRecord
           fk_options = {} if fk_options == true
           args.each do |to_table| 
             foreign_key(to_table, fk_options) 
-            add_index(to_table, "#{to_table}_id", index_options.is_a?(Hash) ? index_options : nil) if index_options
+            add_index(to_table, "#{to_table}_id", index_options.is_a?(Hash) ? index_options : nil) if index_options && ActiveRecord::VERSION::MAJOR == 4
           end
         end
 
@@ -222,7 +222,7 @@ module ActiveRecord
           fk_options = {} if fk_options == true
           args.each do |to_table| 
             foreign_key(to_table, fk_options) 
-            add_index(to_table, "#{to_table}_id", index_options.is_a?(Hash) ? index_options : nil) if index_options
+            add_index(to_table, "#{to_table}_id", index_options.is_a?(Hash) ? index_options : nil) if index_options and ActiveRecord::VERSION::MAJOR == 4
           end
         end
       end

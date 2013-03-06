@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 module ActiveRecord #:nodoc:
   module ConnectionAdapters #:nodoc:
     module OracleEnhancedColumnDumper #:nodoc:

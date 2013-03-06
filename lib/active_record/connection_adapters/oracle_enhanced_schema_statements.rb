@@ -94,7 +94,7 @@ module ActiveRecord
         column_comments.each do |column_name, comment|
           add_comment name, column_name, comment
         end
-        table_definition.indexes.each_pair { |c,o| add_index name, c, o }
+        table_definition.indexes.each_pair { |c,o| add_index name, c, o } if ActiveRecord::VERSION::MAJOR == 4
         
       end
 
@@ -108,7 +108,7 @@ module ActiveRecord
         execute "RENAME #{quote_table_name(table_name)} TO #{quote_table_name(new_name)}"
         execute "RENAME #{quote_table_name("#{table_name}_seq")} TO #{quote_table_name("#{new_name}_seq")}"
 
-        rename_table_indexes(table_name, new_name)
+        rename_table_indexes(table_name, new_name) if ActiveRecord::VERSION::MAJOR == 4
       end
 
       def drop_table(name, options = {}) #:nodoc:
@@ -284,8 +284,10 @@ module ActiveRecord
 
       def rename_column(table_name, column_name, new_column_name) #:nodoc:
         execute "ALTER TABLE #{quote_table_name(table_name)} RENAME COLUMN #{quote_column_name(column_name)} to #{quote_column_name(new_column_name)}"
-        self.all_schema_indexes = nil
-        rename_column_indexes(table_name, column_name, new_column_name)
+        if ActiveRecord::VERSION::MAJOR == 4
+          self.all_schema_indexes = nil
+          rename_column_indexes(table_name, column_name, new_column_name)
+        end
       ensure
         clear_table_columns_cache(table_name)
       end

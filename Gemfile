@@ -1,5 +1,7 @@
 source 'http://rubygems.org'
 
+gem 'debugger'
+
 group :development do
   gem 'jeweler', '~> 1.8.3'
   gem 'rspec', '~> 2.4'
