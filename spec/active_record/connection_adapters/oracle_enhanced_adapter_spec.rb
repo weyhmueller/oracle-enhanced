@@ -285,7 +285,7 @@ describe "OracleEnhancedAdapter" do
     end
 
     it "should execute correct SQL COUNT DISTINCT statement" do
-      lambda { TestEmployee.count(:employee_id, :distinct => true) }.should_not raise_error
+      lambda { TestEmployee.distinct(:employee_id) }.should_not raise_error
     end
 
   end
