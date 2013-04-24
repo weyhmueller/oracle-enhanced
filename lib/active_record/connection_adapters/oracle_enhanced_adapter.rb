@@ -1567,9 +1567,9 @@ module ActiveRecord
           create_sql = "CREATE#{' GLOBAL TEMPORARY' if o.temporary} TABLE "
           create_sql << "#{quote_table_name(o.name)} ("
           create_sql << o.columns.map { |c| accept c }.join(', ')
-          create_sql << ", "
+          #create_sql << ", "
           # how to get these two arguments...
-          create_sql << foreign_key_definition(to_table, options)
+          #create_sql << foreign_key_definition(to_table, options)
           create_sql << ")"
           unless o.temporary
             create_sql << " ORGANIZATION #{o.options[:organization]}" if o.options[:organization]
