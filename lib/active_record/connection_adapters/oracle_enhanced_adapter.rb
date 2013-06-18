@@ -1,21 +1,4 @@
-# -*- coding: utf-8 -*-
-# oracle_enhanced_adapter.rb -- ActiveRecord adapter for Oracle 8i, 9i, 10g, 11g
-#
-# Authors or original oracle_adapter: Graham Jenkins, Michael Schoen
-#
-# Current maintainer: Raimonds Simanovskis (http://blog.rayapps.com)
-#
-#########################################################################
-#
-# See History.md for changes added to original oracle_adapter.rb
-#
-#########################################################################
-#
-# From original oracle_adapter.rb:
-#
-# Implementation notes:
-# 1. Redefines (safely) a method in ActiveRecord to make it possible to
-#    implement an autonumbering solution for Oracle.
+#    implement an autonumbertioning solution for Oracle.
 # 2. The OCI8 driver is patched to properly handle values for LONG and
 #    TIMESTAMP columns. The driver-author has indicated that a future
 #    release of the driver will obviate this patch.
@@ -587,7 +570,7 @@ module ActiveRecord
         if value && column
           case column.type
           when :text, :binary
-            %Q{empty_#{ column.sql_type.downcase rescue 'blob' }()}
+            %Q{empty_#{ type_to_sql(column.type.to_sym).downcase rescue 'blob' }()}
           # NLS_DATE_FORMAT independent TIMESTAMP support
           when :timestamp
             quote_timestamp_with_to_timestamp(value)
@@ -1577,6 +1560,36 @@ module ActiveRecord
           end
           create_sql << " #{o.options[:options]}"
           create_sql
+        end
+
+        def column_options(o)
+          puts caller.first
+          super
+        end
+
+        def add_column_options!(sql, options)
+          type = options[:type] || ((column = options[:column]) && column.type)
+          type = type && type.to_sym
+          # handle case of defaults for CLOB columns, which would otherwise get "quoted" incorrectly
+          if options_include_default?(options)
+            if type == :text
+              sql << " DEFAULT #{@conn.quote(options[:default])}"
+
+            else
+              # from abstract adapter
+              sql << " DEFAULT #{@conn.quote(options[:default], options[:column])}"
+            end
+          end
+          # must explicitly add NULL or NOT NULL to allow change_column to work on migrations
+          if options[:null] == false
+            sql << " NOT NULL"
+          elsif options[:null] == true
+            sql << " NULL" unless type == :primary_key
+          end
+          # add AS expression for virtual columns
+          if options[:as].present?
+            sql << " AS (#{options[:as]})"
+          end
         end
 
         def tablespace_for(obj_type, tablespace_option, table_name=nil, column_name=nil)

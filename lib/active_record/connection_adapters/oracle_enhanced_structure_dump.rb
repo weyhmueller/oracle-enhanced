@@ -215,6 +215,7 @@ module ActiveRecord #:nodoc:
       end
 
       def add_column_options!(sql, options) #:nodoc:
+        # should be removed?
         type = options[:type] || ((column = options[:column]) && column.type)
         type = type && type.to_sym
         # handle case of defaults for CLOB columns, which would otherwise get "quoted" incorrectly
