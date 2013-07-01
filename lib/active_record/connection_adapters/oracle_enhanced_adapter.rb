@@ -587,7 +587,7 @@ module ActiveRecord
         if value && column
           case column.type
           when :text, :binary
-            %Q{empty_#{ column.sql_type.downcase rescue 'blob' }()}
+            %Q{empty_#{ type_to_sql(column.type.to_sym).downcase rescue 'blob' }()}
           # NLS_DATE_FORMAT independent TIMESTAMP support
           when :timestamp
             quote_timestamp_with_to_timestamp(value)
@@ -1589,6 +1589,31 @@ module ActiveRecord
             end
           end
           tablespace_sql
+        end
+
+        def add_column_options!(sql, options)
+          type = options[:type] || ((column = options[:column]) && column.type)
+          type = type && type.to_sym
+          # handle case of defaults for CLOB columns, which would otherwise get "quoted" incorrectly
+          if options_include_default?(options)
+            if type == :text
+              sql << " DEFAULT #{@conn.quote(options[:default])}"
+
+            else
+              # from abstract adapter
+              sql << " DEFAULT #{@conn.quote(options[:default], options[:column])}"
+            end
+          end
+          # must explicitly add NULL or NOT NULL to allow change_column to work on migrations
+          if options[:null] == false
+            sql << " NOT NULL"
+          elsif options[:null] == true
+            sql << " NULL" unless type == :primary_key
+          end
+          # add AS expression for virtual columns
+          if options[:as].present?
+            sql << " AS (#{options[:as]})"
+          end
         end
 
         def default_tablespace_for(type)
