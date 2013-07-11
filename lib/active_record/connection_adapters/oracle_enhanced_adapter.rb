@@ -1595,7 +1595,7 @@ module ActiveRecord
           type = options[:type] || ((column = options[:column]) && column.type)
           type = type && type.to_sym
           # handle case of defaults for CLOB columns, which would otherwise get "quoted" incorrectly
-          if options_include_default?(options)
+          if options.include?(:default) && !(options[:null] == false && options[:default].nil?)
             if type == :text
               sql << " DEFAULT #{@conn.quote(options[:default])}"
 
